@@ -43,7 +43,7 @@ public class CartItem {
 	
 	
 	
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
 	@JoinColumn(name = "product_id")
 	private Product product;
 	
