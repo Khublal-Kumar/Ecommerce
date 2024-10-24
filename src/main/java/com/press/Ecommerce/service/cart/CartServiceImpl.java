@@ -74,4 +74,18 @@ public class CartServiceImpl implements CartService {
 				
 	}
 
+
+	@Override
+	public Cart getCartByUserId(Long id) {
+		
+		if(id== null) {
+			new ResourceNotFoundException("Id not found");
+		}
+		
+		
+		return cartRepository.getById(id);
+		
+	
+	}
+
 }
