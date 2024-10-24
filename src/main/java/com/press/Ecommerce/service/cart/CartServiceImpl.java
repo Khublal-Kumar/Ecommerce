@@ -1,7 +1,9 @@
 package com.press.Ecommerce.service.cart;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 //import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,12 +23,15 @@ public class CartServiceImpl implements CartService {
 
 	    @Autowired
 	    private CartItemRepository cartItemRepository;
+	    
+	    @Autowired
+	    private AtomicLong cartIdGenerator = new AtomicLong(0);
 
 	    @Override
 	    public Cart getCart(Long id) {
 	         Cart cart =cartRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Cart not Found!!!"));
 	         
-	         BigDecimal totalAmount =cart.getTotalAmount();
+	         BigDecimal totalAmount =cart.updateTotalAmount();
 	         cart.setTotalAmount(totalAmount);
 	         
 	         return cartRepository.save(cart);
@@ -35,10 +40,19 @@ public class CartServiceImpl implements CartService {
 	        
 
 	    @Override
-	    public void clearCart(Long id) {
-	        Cart cart = getCart(id);  // Get cart using the above method
-	        cart.getItems().clear();  // Clear all the items from the cart
-	        cartRepository.save(cart);  // Save the cart after clearing items
+	    public void clearCart(Long cartId) {
+	    	 // Retrieve the cart by its ID
+	        Optional<Cart> cartOptional = cartRepository.findById(cartId);
+	        if (!cartOptional.isPresent()) {
+	            throw new RuntimeException("Cart not found!");
+	        }
+	        Cart cart = cartOptional.get();
+
+	        // Clear all items from the cart
+	        cart.getItems().clear();
+
+	        // Save the updated cart
+	        cartRepository.save(cart);
 	    }
 
 	    @Override
@@ -49,7 +63,15 @@ public class CartServiceImpl implements CartService {
 	        return cart.getTotalAmount();
 	    }
 	
-	
-	
+	@Override
+	public Long initilizerNewCart() {
+		
+		Cart newCart = new  Cart();
+		
+		Long newCartId = cartIdGenerator.incrementAndGet();
+		newCart.setId(newCartId);
+		return cartRepository.save(newCart).getId();
+				
+	}
 
 }

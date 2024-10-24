@@ -1,9 +1,11 @@
+
 package com.press.Ecommerce.service.cartItem;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.press.Ecommerce.exception.CartNotFoundException;
 import com.press.Ecommerce.exception.ProductNotFoundException;
@@ -16,7 +18,7 @@ import com.press.Ecommerce.repository.CartRepository;
 import com.press.Ecommerce.repository.ProductRepository;
 import com.press.Ecommerce.service.cart.CartService;
 
-
+@Service
 public class CartItemServiceImpl implements CartItemService {
 	
 		@Autowired
@@ -33,7 +35,9 @@ public class CartItemServiceImpl implements CartItemService {
 
 	    @Override
 	    public CartItem addItemToCart(Long cartId, Long productId, int quantity) {
-	    	// 1. Get the cart
+
+	    	
+	    	 // 1. Get the cart
 	        Cart cart = cartRepository.findById(cartId)
 	                .orElseThrow(() -> new CartNotFoundException("Cart not found with ID: " + cartId));
 
@@ -48,6 +52,7 @@ public class CartItemServiceImpl implements CartItemService {
 	            // 4. If Yes, then increase the quantity with the requested quantity
 	            CartItem cartItem = existingCartItem.get();
 	            cartItem.setQuantity(cartItem.getQuantity() + quantity);
+	            cartItem.setTotalPrice(); // Update the total price
 	            return cartItemRepository.save(cartItem);
 	        } else {
 	            // 5. If No, then initiate a new CartItem entry
@@ -56,6 +61,7 @@ public class CartItemServiceImpl implements CartItemService {
 	            newCartItem.setProduct(product);
 	            newCartItem.setQuantity(quantity);
 	            newCartItem.setUnitPrice(product.getPrice());
+	            newCartItem.setTotalPrice(); // Set the total price
 
 	            return cartItemRepository.save(newCartItem);
 	        }
@@ -63,17 +69,17 @@ public class CartItemServiceImpl implements CartItemService {
 
 	    @Override
 	    public void removeItemFromCart(Long cartId, Long productId) {
-	        // 1. Get the cart
+	    	 // 1. Get the cart
 	        Cart cart = cartService.getCart(cartId);
-
-	        // 2. Get the cart item to remove
-	        CartItem itemToRemove = getCartItem(cartId,productId);
-
-	        // 3. Remove the item from the cart
+	        CartItem itemToRemove = cart.getItems()
+	        .stream()
+	        .filter(i->i.getProduct().getId().equals(productId))
+	        .findFirst().orElseThrow(()->new ResourceNotFoundException("Product Not Found"));
+	        
 	        cart.removeItem(itemToRemove);
-
-	        // 4. Save the updated cart
 	        cartRepository.save(cart);
+
+	        
 	    }
 
 	    @Override

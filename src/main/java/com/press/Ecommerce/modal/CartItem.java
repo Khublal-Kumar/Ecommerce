@@ -3,6 +3,8 @@ package com.press.Ecommerce.modal;
 import java.math.BigDecimal;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -45,7 +47,7 @@ public class CartItem {
 	@JoinColumn(name = "product_id")
 	private Product product;
 	
-	
+	@JsonIgnore
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "cart_id")
 	private Cart cart;
@@ -53,10 +55,10 @@ public class CartItem {
 
 	
 	 public  void setTotalPrice() {
-	        if (this.unitPrice == null || this.unitPrice.compareTo(BigDecimal.ZERO) < 0 || this.quantity < 0) {
+	        if (unitPrice == null || unitPrice.compareTo(BigDecimal.ZERO) < 0 || quantity < 0) {
 	            throw new IllegalArgumentException("Invalid unit price or quantity");
 	        }
-	       this.totalPrice = this.unitPrice.multiply(new BigDecimal(this.quantity));
+	       this.totalPrice = unitPrice.multiply(new BigDecimal(quantity));
 	    }
 	
 	

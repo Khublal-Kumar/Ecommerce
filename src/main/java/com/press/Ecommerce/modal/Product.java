@@ -1,8 +1,10 @@
 package com.press.Ecommerce.modal;
 
 import java.math.BigDecimal;
-import java.sql.Blob;
+
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -12,7 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import lombok.AllArgsConstructor;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -51,10 +53,11 @@ public class Product {
 	 
 	 private BigDecimal price;
 	 
+	 @JsonIgnore
 	 private int inventory;
 	 
 	 
-	 @ManyToOne(cascade = CascadeType.ALL)
+	 @ManyToOne
 	 @JoinColumn(name = "category_id")
 	 private Category category;
 	 
